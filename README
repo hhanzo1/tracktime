@@ -1,0 +1,61 @@
+# Track Time Check-In System
+
+A Flask-based application for RC track session management and coordination.
+
+## Overview
+
+Track Time is a check-in system that helps RC racers coordinate track sessions and connect with fellow enthusiasts. The system streamlines track time planning and enhances the racing community experience.
+
+## Features
+
+- **Session Management**: Create, edit, and manage track check-ins
+- **Real-time Dashboard**: View active track sessions and upcoming bookings
+- **Push Notifications**: Receive alerts about track activities and session updates
+- **Social Integration**: Share sessions via Facebook, WhatsApp, or Messages
+- **Weather Updates**: Live weather data refreshed every 15 minutes
+- **Statistics Tracking**: Monitor your track time history and progress
+
+## Directory Structure
+
+```
+tracktime/
+│
+├── .env              # Environmental variables
+├── config.py         # Configuration settings
+├── models.py         # Database models
+├── utils.py          # Utility functions
+├── weather.py        # Weather-related functions
+├── notifications.py  # Notification-related functions
+├── database.py      # Database functions
+├── views/
+│   ├── __init__.py  # Empty file to make views a package
+│   ├── main.py      # Main routes
+│   ├── auth.py      # Authentication routes
+│   └── admin.py     # Admin routes
+├── templates/
+│   ├── admin        # Admin HTML templates
+│   ├── auth         # Authentication HTML templates
+└── app.py           # Main application file
+```
+
+## How It Works
+
+1. Log into your account and create a Check-In before heading to the track
+2. Your session appears on the dashboard for other racers to see
+3. Optional push notifications alert other racers about your session
+4. Share your Check-In on social media to coordinate with your racing community
+5. Manage your sessions through the dashboard interface
+
+## Track Time Management
+
+The system provides several tools to help manage your track time effectively:
+
+* Dashboard view of all active and upcoming sessions
+* Session editing and deletion capabilities
+* Export functionality for track time data
+* Statistical analysis of track usage patterns
+* Real-time weather monitoring for optimal racing conditions
+
+## Getting Started
+
+[TO DO]

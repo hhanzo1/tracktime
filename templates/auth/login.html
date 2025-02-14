@@ -1,0 +1,46 @@
+{# templates/login.html #}
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center min-vh-75 align-items-center">
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-body p-4 p-sm-5">
+                <div class="text-center mb-4">
+                    <h2 class="h3 mb-3">Welcome &#128663</h2>
+                    <p class="text-muted">Enter your email to receive a verification code</p>
+                </div>
+
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="email" class="form-label">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="email" 
+                                   name="email" 
+                                   placeholder="masami_h@example.com"
+                                   required>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-dark btn-lg">
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div> <br> </div>
+        <div class="text-center">
+            <a href="{{ url_for('register') }}" class="text-decoration-none">
+                <i class="fas fa-sign-in-alt me-1"></i>
+                Need an account? Register
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

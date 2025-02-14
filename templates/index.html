@@ -1,0 +1,180 @@
+{# templates/index.html #}
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Welcome to Track Time</h1>
+
+{% if weather %}
+<div class="card mb-4 weather-card">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-cloud me-2"></i>Current Weather
+        <span class="badge bg-light text-dark">
+            Updated: {{ weather.timestamp | datetime }}
+        </span>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="https://openweathermap.org/img/wn/{{ weather.icon }}@2x.png" 
+                         alt="Weather icon" 
+                         class="weather-icon me-3">
+                    <div>
+                        <h2 class="temperature mb-0">{{ weather.temperature }}°C</h2>
+                        <p class="text-muted mb-0">Feels like: {{ weather.feels_like }}°C</p>
+                    </div>
+                </div>
+                <h4 class="condition-text">
+                    {{ weather.description|title }}
+                </h4>
+                <div class="weather-details mt-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-item mb-2">
+                                <i class="fas fa-temperature-high text-danger me-2"></i>
+                                <span>24h High: {{ weather.temperature_max }}°C</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-temperature-low text-info me-2"></i>
+                                <span>24h Low: {{ weather.temperature_min }}°C</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item mb-2">
+                                <i class="fas fa-cloud-rain text-dark me-2"></i>
+                                <span>Last Hour: {{ weather.rain_last_hour }} mm</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-umbrella text-info me-2"></i>
+                                <span>Next 3h: {{ weather.rain_forecast }} mm
+                                    {% if weather.rain_probability > 0 %}
+                                        <span class="text-muted">({{ weather.rain_probability }}% chance)</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.weather-card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.weather-icon {
+    width: 64px;
+    height: 64px;
+}
+
+.temperature {
+    font-size: 2.5rem;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.condition-text {
+    font-size: 1.25rem;
+    color: #666;
+    margin-top: 1rem;
+}
+
+.weather-details {
+    margin-top: 1rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+}
+
+.detail-item i {
+    width: 20px;
+    margin-right: 0.75rem;
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .col-md-6:last-child {
+        margin-top: 0.75rem;
+    }
+}
+</style>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% else %}
+<div class="alert alert-warning" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    Weather data is currently unavailable. Please try again later.
+</div>
+{% endif %}
+
+<h4>Current Check-In's</h4>
+{% if checkins %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Driver</th>
+                <th>Start date</th>
+                <th>Start time</th>
+                <th>Track time</th>
+                <th>End time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for checkin in checkins %}
+                {% set start = checkin.start_time.replace(tzinfo=now.tzinfo) %}
+                {% set end_time = start + duration(hours=checkin.duration) %}
+                {% if end_time > now %}
+                    <tr>
+                        <td>
+                            {% if checkin.status == CheckInStatus.PENDING %}
+                                <span class="badge bg-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Status: Pending - Awaiting Confirmation">
+                                    <i class="fas fa-flag-checkered"></i>
+                                </span>
+                            {% elif checkin.status == CheckInStatus.CONFIRMED %}
+                                <span class="badge bg-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Status: Confirmed - Check-In Confirmed">
+                                    <i class="fas fa-flag-checkered"></i>
+                                </span>
+                            {% elif checkin.status == CheckInStatus.CANCELLED %}
+                                <span class="badge bg-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Status: Cancelled - Check-In Cancelled">
+                                    <i class="fas fa-flag-checkered"></i>
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Status: Unknown">
+                                    <i class="fas fa-flag-checkered"></i>
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ checkin.name }}</td>
+                        <td>{{ checkin.start_time.strftime('%a, %Y-%m-%d') }}</td>
+                        <td>{{ checkin.start_time.strftime('%I:%M %p') }}</td>
+                        <td>{{ checkin.duration }} hrs</td>
+                        <td>{{ end_time.strftime('%I:%M %p') }}</td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>None.</p>
+{% endif %}
+{% endblock %}

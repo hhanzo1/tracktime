@@ -1,0 +1,380 @@
+{# templates/stats.html #}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Overview Cards -->
+    <div class="row mb-4">
+        <!-- Registered Drivers -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Registered Drivers</h6>
+                    <h2 class="card-title mb-3">{{ stats.registered_drivers }}</h2>
+                    <div class="text-muted small">
+                        <i class="fas fa-id-card me-1"></i>
+                        Total registered drivers
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Stats -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Today's Check-In's</h6>
+                    {% set today_total = stats.today|default([])|sum(attribute='count') %}
+                    <h2 class="card-title mb-3">{{ today_total }}</h2>
+                    <div class="text-muted small">
+                        <i class="fas fa-users me-1"></i>
+                        {{ stats.today|default([])|length }} active drivers
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- This Week's Stats -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">This Week</h6>
+                    {% set week_total = stats.this_week|default([])|sum(attribute='count') %}
+                    <h2 class="card-title mb-3">{{ week_total }}</h2>
+                    <div class="text-muted small">
+                        <i class="fas fa-calendar-week me-1"></i>
+                        {{ stats.this_week|default([])|length }} active drivers
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- This Month's Stats -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">This Month</h6>
+                    {% set month_total = stats.this_month|default([])|sum(attribute='count') %}
+                    <h2 class="card-title mb-3">{{ month_total }}</h2>
+                    <div class="text-muted small">
+                        <i class="fas fa-calendar-week me-1"></i>
+                        {{ stats.this_month|default([])|length }} active drivers
+                    </div>
+                </div>
+            </div>
+        </div>       
+
+        <!-- Overall Stats -->
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Total Check-In's</h6>
+                    {% set overall_total = stats.overall|default([])|sum(attribute='count') %}
+                    <h2 class="card-title mb-3">{{ overall_total }}</h2>
+                    <div class="text-muted small">
+                        <i class="fas fa-chart-line me-1"></i>
+                        {{ stats.overall|default([])|length }} total drivers
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Time of Day Activity Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-2"></i>Track Activity by Time of Day
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 350px">
+                        <div id="timeOfDayChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Load ApexCharts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.42.0/apexcharts.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const hourlyData = {{ stats.hourly_activity|tojson|safe }};
+            console.log('Raw hourly data:', hourlyData);
+
+            const fullHourlyData = Array.from({length: 24}, (_, hour) => {
+                const existingData = hourlyData.find(d => d.hour === hour) || { count: 0 };
+                return {
+                    hour: hour,
+                    count: existingData.count || 0
+                };
+            });
+            
+            console.log('Processed hourly data:', fullHourlyData);
+
+            const options = {
+                series: [{
+                    name: 'Check-ins',
+                    data: fullHourlyData.map(d => d.count)
+                }],
+                chart: {
+                    type: 'area',
+                    height: 350,
+                    toolbar: {
+                        show: false
+                    },
+                    animations: {
+                        enabled: true,
+                        easing: 'easeinout',
+                        speed: 800,
+                        animateGradually: {
+                            enabled: true,
+                            delay: 150
+                        },
+                        dynamicAnimation: {
+                            enabled: true,
+                            speed: 350
+                        }
+                    },
+                    dropShadow: {
+                        enabled: true,
+                        opacity: 0.3,
+                        blur: 5,
+                        left: -7,
+                        top: 22
+                    }
+                },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                xaxis: {
+                    categories: fullHourlyData.map(d => {
+                        const hour = d.hour;
+                        const ampm = hour >= 12 ? 'PM' : 'AM';
+                        const hour12 = hour % 12 || 12;
+                        return `${hour12}${ampm}`;
+                    }),
+                    labels: {
+                        rotate: 0,
+                        style: {
+                            fontSize: '12px',
+                            fontFamily: 'system-ui'
+                        }
+                    },
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    }
+                },
+                yaxis: {
+                    title: {
+                        text: 'Number of Check-ins',
+                        style: {
+                            fontSize: '12px',
+                            fontFamily: 'system-ui'
+                        }
+                    },
+                    min: 0,
+                    forceNiceScale: true,
+                    floating: false,
+                    labels: {
+                        formatter: function(val) {
+                            return Math.floor(val);
+                        },
+                        style: {
+                            fontSize: '12px',
+                            fontFamily: 'system-ui'
+                        }
+                    }
+                },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        type: 'vertical',
+                        shadeIntensity: 1,
+                        inverseColors: false,
+                        opacityFrom: 0.7,
+                        opacityTo: 0.2,
+                        stops: [0, 90, 100],
+                        colorStops: [
+                            {
+                                offset: 0,
+                                color: '#4669FA',
+                                opacity: 1
+                            },
+                            {
+                                offset: 100,
+                                color: '#A3E2FF',
+                                opacity: 0.1
+                            }
+                        ]
+                    }
+                },
+                grid: {
+                    borderColor: '#f1f1f1',
+                    strokeDashArray: 5,
+                    xaxis: {
+                        lines: {
+                            show: true
+                        }
+                    },
+                    yaxis: {
+                        lines: {
+                            show: true
+                        }
+                    },
+                    padding: {
+                        top: 0,
+                        right: 0,
+                        bottom: 0,
+                        left: 0
+                    }
+                },
+                tooltip: {
+                    enabled: true,
+                    theme: 'light',
+                    style: {
+                        fontSize: '12px',
+                        fontFamily: 'system-ui'
+                    },
+                    y: {
+                        formatter: function(val) {
+                            return Math.floor(val) + ' check-ins';
+                        }
+                    },
+                    marker: {
+                        show: true,
+                    }
+                },
+                markers: {
+                    size: 4,
+                    colors: ['#4669FA'],
+                    strokeColors: '#fff',
+                    strokeWidth: 2,
+                    hover: {
+                        size: 7,
+                    }
+                },
+                theme: {
+                    mode: 'light'
+                }
+            };
+
+            try {
+                const chart = new ApexCharts(document.querySelector("#timeOfDayChart"), options);
+                chart.render();
+            } catch (error) {
+                console.error('Error rendering chart:', error);
+            }
+        });
+    </script>
+    <!-- Top Performers Section -->
+    <div class="row mb-4">
+        <!-- Top Duration -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-2"></i>Top Track time
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for stat in stats.top_duration|default([]) %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-user text-secondary me-2"></i>
+                                {{ stat.name }}
+                            </div>
+                            <span class="badge bg-primary rounded-pill">
+                                {{ "%.1f"|format(stat.value) }} hours
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Frequency -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trophy me-2"></i>Top Check-In's
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for stat in stats.top_frequency|default([]) %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fas fa-user text-secondary me-2"></i>
+                                {{ stat.name }}
+                            </div>
+                            <span class="badge bg-success rounded-pill">
+                                {{ stat.value }} check-ins
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Statistics Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-table me-2"></i>Detailed Statistics
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Driver</th>
+                            <th class="text-center">Check-In's</th>
+                            <th class="text-center">Total Hours</th>
+                            <th class="text-center">Average Track Time</th>
+                            <th class="text-center">Last Check-In</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in stats.overall|default([]) %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-user text-secondary me-2"></i>
+                                    {{ stat.name }}
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-secondary">{{ stat.count }}</span>
+                            </td>
+                            <td class="text-center">{{ "%.1f"|format(stat.total_duration|default(0)) }}</td>
+                            <td class="text-center">{{ "%.1f"|format(stat.avg_duration|default(0)) }}</td>
+                            <td class="text-center">
+                                <span class="text-muted">
+                                    {{ stat.latest_check_in or 'N/A' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

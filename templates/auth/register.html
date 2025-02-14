@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        {% if registration_closed %}
+            <div class="card p-4 mb-4">
+                <div class="text-center mb-4">
+                    <h2 class="h3 mb-3">Registration Closed</h2>
+                    <p class="text-muted">Maximum registration limit reached</p>
+                </div>
+
+                <div class="alert alert-info mb-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Registration is currently closed as we have reached our maximum capacity.
+                    Please check back later or contact the administrator for more information.
+                </div>
+
+                <div class="d-grid">
+                    <a href="{{ url_for('login') }}" class="btn btn-dark btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Go to Login
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <div class="card p-4 mb-4">
+                <div class="text-center mb-4">
+                    <h2 class="h3 mb-3">Register for Track Time</h2>
+                    <p class="text-muted">Please read the <a href="https://tracktime.netwrk8.com/faq">FAQ</a> <b>first</b> before registering for an account.</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="email" 
+                                   name="email" 
+                                   required 
+                                   placeholder="Enter your email">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="name" class="form-label">Full Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-user"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="name" 
+                                   name="name" 
+                                   required 
+                                   placeholder="Enter your full name">
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-dark btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Register
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="text-center">
+                <a href="{{ url_for('login') }}" class="text-decoration-none">
+                    <i class="fas fa-sign-in-alt me-1"></i>
+                    Already have an account? Login
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

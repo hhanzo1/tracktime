@@ -1,0 +1,108 @@
+{# templates/edit_checkin.html #}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h2 class="card-title h4 mb-0">Edit Check-in</h2>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <!-- Date Field -->
+                <div class="row mb-3">
+                    <label for="start_date" class="col-sm-3 col-form-label">Date</label>
+                    <div class="col-sm-9">
+                        <input type="date" 
+                               id="start_date" 
+                               name="start_date" 
+                               class="form-control"
+                               value="{{ checkin.start_time.strftime('%Y-%m-%d') }}"
+                               required>
+                    </div>
+                </div>
+
+                <!-- Time Field -->
+                <div class="row mb-3">
+                    <label for="start_time" class="col-sm-3 col-form-label">Start Time</label>
+                    <div class="col-sm-9">
+                        <select id="start_time" 
+                                name="start_time" 
+                                class="form-select"
+                                required>
+                            {% for h in range(0, 24) %}
+                                {% for m in [0, 15, 30, 45] %}
+                                    {% set time = '%02d:%02d'|format(h, m) %}
+                                    <option value="{{ time }}"
+                                            {% if checkin.start_time.strftime('%H:%M') == time %}selected{% endif %}>
+                                        {{ time }}
+                                    </option>
+                                {% endfor %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Duration Field -->
+                <div class="row mb-3">
+                    <label for="duration" class="col-sm-3 col-form-label">Track time</label>
+                    <div class="col-sm-9">
+                        <select id="duration" 
+                                name="duration" 
+                                class="form-select"
+                                required>
+                            <option value="0.5" {% if checkin.duration == 0.5 %}selected{% endif %}>30 minutes</option>
+                            <option value="0.75" {% if checkin.duration == 0.75 %}selected{% endif %}>45 minutes</option>
+                            <option value="1" {% if checkin.duration == 1 %}selected{% endif %}>1 hour</option>
+                            <option value="1.5" {% if checkin.duration == 1.5 %}selected{% endif %}>1.5 hours</option>
+                            <option value="2" {% if checkin.duration == 2 %}selected{% endif %}>2 hours</option>
+                            <option value="2.5" {% if checkin.duration == 2.5 %}selected{% endif %}>2.5 hours</option>
+                            <option value="3" {% if checkin.duration == 3 %}selected{% endif %}>3 hours</option>
+                            <option value="4" {% if checkin.duration == 4 %}selected{% endif %}>4 hours</option>
+                            <option value="5" {% if checkin.duration == 5 %}selected{% endif %}>5 hours</option>
+                            <option value="6" {% if checkin.duration == 6 %}selected{% endif %}>6 hours</option>
+                            <option value="8" {% if checkin.duration == 8 %}selected{% endif %}>8 hours</option>
+                            <option value="12" {% if checkin.duration == 12 %}selected{% endif %}>12 hours</option>
+                            <option value="24" {% if checkin.duration == 24 %}selected{% endif %}>24 hours</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Notification Checkbox -->
+                <div class="row mb-3">
+                    <div class="col-sm-9 offset-sm-3">
+                        <!-- Info Box -->
+                        <div class="alert alert-info" role="alert">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Push notifications are sent via <a href="https://docs.ntfy.sh/subscribe/phone/">ntfy</a>.<br> 
+                            Subscribe via Topic name: <b>sirccc</b>, URL: <b>https://sircc.netwrk8.com</b>.
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" 
+                                   class="form-check-input" 
+                                   id="notify" 
+                                   name="notify"
+                                   {% if checkin.notify %}checked{% endif %}>
+                            <label class="form-check-label" for="notify">
+                                Send push notification
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="row">
+                    <div class="col-sm-9 offset-sm-3">
+                        <button type="submit" class="btn btn-dark me-2">
+                            <i class="fas fa-save me-2"></i>Update
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

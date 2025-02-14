@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <h2 class="h3 mb-0">Pending Registrations</h2>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-dark btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Home
+                </a>
+            </div>
+
+            <div class="card-body">
+                {% if registrations %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Name</th>
+                                    <th>Requested</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reg in registrations %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-envelope text-muted me-2"></i>
+                                                {{ reg.email }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user text-muted me-2"></i>
+                                                {{ reg.name }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-clock text-muted me-2"></i>
+                                                {{ reg.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                                            </div>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('process_registration', reg_id=reg.id, action='approve') }}" 
+                                                   class="btn btn-success btn-sm">
+                                                   <i class="fas fa-check me-1"></i>Approve
+                                                </a>
+                                                <a href="{{ url_for('process_registration', reg_id=reg.id, action='reject') }}" 
+                                                   class="btn btn-danger btn-sm">
+                                                   <i class="fas fa-times me-1"></i>Reject
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox text-muted mb-3" style="font-size: 3rem;"></i>
+                        <p class="text-muted mb-0">No pending registrations</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
